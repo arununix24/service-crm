@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense & Budget Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Personal Expense & Budget Tracker</h1>
+            <div class="header-actions">
+                <div class="currency-selector">
+                    <select id="currency-select">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="JPY">JPY (¥)</option>
+                        <option value="INR">INR (₹)</option>
+                        <option value="CAD">CAD (C$)</option>
+                        <option value="AUD">AUD (A$)</option>
+                        <option value="CNY">CNY (¥)</option>
+                    </select>
+                </div>
+                <button id="toggle-theme" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <section class="summary-container">
+            <div class="summary-card">
+                <h3>Income</h3>
+                <p id="total-income">$0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Expenses</h3>
+                <p id="total-expenses">$0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Balance</h3>
+                <p id="balance">$0.00</p>
+            </div>
+        </section>
+
+        <div class="controls-container">
+            <section class="budget-section">
+                <h2>Monthly Budget</h2>
+                <div class="budget-form">
+                    <input type="number" id="budget-amount" placeholder="Set Monthly Budget">
+                    <button id="set-budget">Set</button>
+                </div>
+                <div class="budget-info">
+                    <p>Budget: <span id="budget-display">$0.00</span></p>
+                    <p>Remaining: <span id="remaining-budget">$0.00</span></p>
+                    <div class="progress-bar">
+                        <div id="budget-progress" class="progress"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="emi-section">
+                <h2>Monthly EMIs</h2>
+                <div class="emi-form">
+                    <input type="text" id="emi-name" placeholder="EMI Name (e.g., Car Loan)">
+                    <input type="number" id="emi-amount" placeholder="Monthly Amount">
+                    <input type="date" id="emi-start-date" placeholder="Start Date">
+                    <input type="date" id="emi-end-date" placeholder="End Date (optional)">
+                    <button id="add-emi">Add EMI</button>
+                </div>
+                <div class="emi-list" id="emi-container">
+                    <!-- EMIs will be added here dynamically -->
+                    <div class="empty-state">No EMIs added yet.</div>
+                </div>
+                <div class="emi-info">
+                    <p>Total Monthly EMIs: <span id="total-emis">$0.00</span></p>
+                </div>
+            </section>
+        </div>
+
+        <div class="main-content">
+            <section class="form-section">
+                <h2>Add Transaction</h2>
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">Select Category</option>
+                            <optgroup label="Expense Categories">
+                                <option value="Food">Food</option>
+                                <option value="Rent">Rent</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Transportation">Transportation</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Education">Education</option>
+                                <option value="EMI/Loan">EMI/Loan</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Other">Other</option>
+                            </optgroup>
+                            <optgroup label="Income Categories">
+                                <option value="Salary">Salary</option>
+                                <option value="Freelance">Freelance</option>
+                                <option value="Investments">Investments</option>
+                                <option value="Gifts">Gifts</option>
+                                <option value="Other Income">Other Income</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type" required>
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="recurring">
+                            <input type="checkbox" id="recurring">
+                            Recurring Transaction
+                        </label>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" id="add-transaction">Add Transaction</button>
+                        <button type="button" id="cancel-edit" style="display: none;">Cancel Edit</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="chart-section">
+                <h2>Expense Breakdown</h2>
+                <div class="chart-container">
+                    <canvas id="expense-chart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <section class="transactions-section">
+            <h2>Transaction History</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filter-category">Filter by Category:</label>
+                    <select id="filter-category">
+                        <option value="all">All Categories</option>
+                        <option value="Food">Food</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Education">Education</option>
+                        <option value="EMI/Loan">EMI/Loan</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Freelance">Freelance</option>
+                        <option value="Investments">Investments</option>
+                        <option value="Gifts">Gifts</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-date-start">From:</label>
+                    <input type="date" id="filter-date-start">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-date-end">To:</label>
+                    <input type="date" id="filter-date-end">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-type">Type:</label>
+                    <select id="filter-type">
+                        <option value="all">All Types</option>
+                        <option value="expense">Expenses</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <button id="apply-filters">Apply Filters</button>
+                <button id="clear-filters">Clear</button>
+            </div>
+            <div class="transactions-list" id="transactions-container">
+                <!-- Transactions will be added here dynamically -->
+                <div class="empty-state">No transactions added yet.</div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Personal Expense & Budget Tracker</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 
